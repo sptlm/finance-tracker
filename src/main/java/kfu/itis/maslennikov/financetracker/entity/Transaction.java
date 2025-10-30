@@ -11,6 +11,8 @@ public class Transaction {
     private String type; // INCOME или EXPENSE
     private String description;
     private LocalDate transactionDate;
+    private Account account;
+    private Category category;
 
     public Transaction(Long id, Long accountId, Long categoryId, BigDecimal  amount, String type, String description, LocalDate transactionDate) {
         this.id = id;
@@ -20,6 +22,18 @@ public class Transaction {
         this.type = type;
         this.description = description;
         this.transactionDate = transactionDate;
+    }
+
+    public Transaction(Long id, Long accountId, Long categoryId, BigDecimal amount, String type, String description, LocalDate transactionDate, Account account, Category category) {
+        this.id = id;
+        this.accountId = accountId;
+        this.categoryId = categoryId;
+        this.amount = amount;
+        this.type = type;
+        this.description = description;
+        this.transactionDate = transactionDate;
+        this.account = account;
+        this.category = category;
     }
 
     public Long getId() {
@@ -76,5 +90,21 @@ public class Transaction {
 
     public void setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

@@ -51,7 +51,7 @@ public class AppContextListener implements ServletContextListener {
         UserService userService = new UserServiceImpl(userDao);
         AccountService accountService = new AccountServiceImpl(accountDao, currencyDao);
         CategoryService categoryService = new CategoryServiceImpl(categoryDao);
-        TransactionService transactionService = new TransactionServiceImpl(transactionDao);
+        TransactionService transactionService = new TransactionServiceImpl(transactionDao, tagDao);
         StatisticsService statisticsService = new StatisticsServiceImpl(transactionDao, accountDao, categoryDao, currencyDao);
         TagService tagService = new TagServiceImpl(tagDao);
         CurrencyService currencyService = new CurrencyServiceImpl(currencyDao);

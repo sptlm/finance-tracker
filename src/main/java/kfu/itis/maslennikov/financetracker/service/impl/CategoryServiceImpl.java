@@ -35,7 +35,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Long create(Category category) {
-        // Валидация
         if (category.getName() == null || category.getName().trim().isEmpty()) {
             throw new ValidationException("Category name cannot be empty");
         }

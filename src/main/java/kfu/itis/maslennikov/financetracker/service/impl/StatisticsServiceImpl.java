@@ -2,6 +2,7 @@ package kfu.itis.maslennikov.financetracker.service.impl;
 
 import kfu.itis.maslennikov.financetracker.dao.AccountDao;
 import kfu.itis.maslennikov.financetracker.dao.CategoryDao;
+import kfu.itis.maslennikov.financetracker.dao.CurrencyDao;
 import kfu.itis.maslennikov.financetracker.dao.TransactionDao;
 import kfu.itis.maslennikov.financetracker.entity.Account;
 import kfu.itis.maslennikov.financetracker.entity.Category;
@@ -20,11 +21,13 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final TransactionDao transactionDao;
     private final AccountDao accountDao;
     private final CategoryDao categoryDao;
+    private final CurrencyDao currencyDao;
 
-    public StatisticsServiceImpl(TransactionDao transactionDao, AccountDao accountDao, CategoryDao categoryDao) {
+    public StatisticsServiceImpl(TransactionDao transactionDao, AccountDao accountDao, CategoryDao categoryDao, CurrencyDao currencyDao) {
         this.transactionDao = transactionDao;
         this.accountDao = accountDao;
         this.categoryDao = categoryDao;
+        this.currencyDao = currencyDao;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             
             BigDecimal accountIncome = transactions.stream()
                 .filter(t -> "INCOME".equals(t.getType()))
-                .map(Transaction::getAmount)
+                .map(t -> convertToRubles(t.getAmount(), account))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
             
             total = total.add(accountIncome);
@@ -60,7 +63,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             
             BigDecimal accountExpense = transactions.stream()
                 .filter(t -> "EXPENSE".equals(t.getType()))
-                .map(Transaction::getAmount)
+                .map(t -> convertToRubles(t.getAmount(), account))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
             
             total = total.add(accountExpense);
@@ -95,7 +98,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .filter(t -> "EXPENSE".equals(t.getType()))
                 .forEach(t -> {
                     String categoryName = categoryNames.getOrDefault(t.getCategoryId(), "Unknown");
-                    result.merge(categoryName, t.getAmount(), BigDecimal::add);
+                    result.merge(categoryName, convertToRubles(t.getAmount(), account), BigDecimal::add);
                 });
         }
         
@@ -120,10 +123,23 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .filter(t -> "INCOME".equals(t.getType()))
                 .forEach(t -> {
                     String categoryName = categoryNames.getOrDefault(t.getCategoryId(), "Unknown");
-                    result.merge(categoryName, t.getAmount(), BigDecimal::add);
+                    result.merge(categoryName, convertToRubles(t.getAmount(), account), BigDecimal::add);
                 });
         }
         
         return result;
+    }
+    private BigDecimal convertToRubles(BigDecimal amount, Account account) {
+        if (amount == null) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal exchangeRate = currencyDao.findById(account.getCurrencyId()).get().getExchangeRateToRub();
+
+        if (exchangeRate == null) {
+            exchangeRate = BigDecimal.ONE;
+        }
+
+        return amount.multiply(exchangeRate);
     }
 }

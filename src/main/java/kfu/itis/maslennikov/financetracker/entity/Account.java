@@ -6,16 +6,27 @@ public class Account {
     private Long id;
     private Long userId;
     private String name;
-    private String currency;
+    private Long currencyId;
+    private Currency currency;
     private BigDecimal initialBalance;
     private BigDecimal  currentBalance;
 
     public Account() {}
 
-    public Account(Long id, Long userId, String name, String currency, BigDecimal  initialBalance, BigDecimal  currentBalance) {
+    public Account(Long id, Long userId, String name, Long currencyId, BigDecimal  initialBalance, BigDecimal  currentBalance) {
         this.id = id;
         this.userId = userId;
         this.name = name;
+        this.currencyId = currencyId;
+        this.initialBalance = initialBalance;
+        this.currentBalance = currentBalance;
+    }
+
+    public Account(Long id, Long userId, String name, Long currencyId, Currency currency, BigDecimal initialBalance, BigDecimal currentBalance) {
+        this.id = id;
+        this.userId = userId;
+        this.name = name;
+        this.currencyId = currencyId;
         this.currency = currency;
         this.initialBalance = initialBalance;
         this.currentBalance = currentBalance;
@@ -45,12 +56,12 @@ public class Account {
         this.name = name;
     }
 
-    public String getCurrency() {
-        return currency;
+    public Long getCurrencyId() {
+        return currencyId;
     }
 
-    public void setCurrency(String currency) {
-        this.currency = currency;
+    public void setCurrencyId(Long currencyId) {
+        this.currencyId = currencyId;
     }
 
     public BigDecimal  getInitialBalance() {
@@ -67,5 +78,34 @@ public class Account {
 
     public void setCurrentBalance(BigDecimal  currentBalance) {
         this.currentBalance = currentBalance;
+    }
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
+    // для передачи данных на шаблоны
+
+    public String getCurrencyCode() {
+        return currency != null ? currency.getCode() : "RUB";
+    }
+
+    public String getCurrencySymbol() {
+        return currency != null ? currency.getSymbol() : "₽";
+    }
+
+    public BigDecimal getExchangeRateToRub() {
+        return currency != null ? currency.getExchangeRateToRub() : BigDecimal.ONE;
+    }
+
+    public BigDecimal getCurrentBalanceInRub() {
+        if (currentBalance == null) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal exchangeRate = getExchangeRateToRub();
+        return currentBalance.multiply(exchangeRate);
     }
 }

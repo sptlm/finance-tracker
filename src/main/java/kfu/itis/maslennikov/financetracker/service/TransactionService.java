@@ -1,9 +1,11 @@
 package kfu.itis.maslennikov.financetracker.service;
 
+import kfu.itis.maslennikov.financetracker.entity.Tag;
 import kfu.itis.maslennikov.financetracker.entity.Transaction;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface TransactionService {
@@ -31,4 +33,6 @@ public interface TransactionService {
     List<Transaction> filterTransactions(List<Transaction> list, String type, String categoryId,
                                          String[] tagIds, String dateFrom, String dateTo,
                                          String amountFrom, String amountTo);
+
+    Map<String, List<Tag>> loadTagsForTransactions(List<Transaction> transactions);
 }

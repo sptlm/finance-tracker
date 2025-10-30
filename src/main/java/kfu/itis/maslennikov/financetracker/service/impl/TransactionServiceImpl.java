@@ -1,17 +1,21 @@
 package kfu.itis.maslennikov.financetracker.service.impl;
 
+import kfu.itis.maslennikov.financetracker.dao.TagDao;
 import kfu.itis.maslennikov.financetracker.dao.TransactionDao;
+import kfu.itis.maslennikov.financetracker.entity.Tag;
 import kfu.itis.maslennikov.financetracker.entity.Transaction;
 import kfu.itis.maslennikov.financetracker.exception.ResourceNotFoundException;
-import kfu.itis.maslennikov.financetracker.exception.ValidationException;
 import kfu.itis.maslennikov.financetracker.service.TransactionService;
+import kfu.itis.maslennikov.financetracker.util.ValidationUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,9 +23,11 @@ import java.util.stream.Collectors;
 public class TransactionServiceImpl implements TransactionService {
     
     private final TransactionDao transactionDao;
+    private final TagDao tagDao;
 
-    public TransactionServiceImpl(TransactionDao transactionDao) {
+    public TransactionServiceImpl(TransactionDao transactionDao, TagDao tagDao) {
         this.transactionDao = transactionDao;
+        this.tagDao = tagDao;
     }
 
     @Override
@@ -46,7 +52,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Long create(Transaction transaction) {
-        validateTransaction(transaction);
+        ValidationUtil.validateTransaction(transaction);
         
         return transactionDao.create(transaction);
     }
@@ -57,7 +63,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ResourceNotFoundException("Transaction not found with id: " + transaction.getId());
         }
         
-        validateTransaction(transaction);
+        ValidationUtil.validateTransaction(transaction);
         
         return transactionDao.update(transaction);
     }
@@ -100,12 +106,12 @@ public class TransactionServiceImpl implements TransactionService {
                 Collections.emptySet() :
                 new HashSet<>(List.of(tagIds));
         return list.stream()
-                .filter(t -> type == null || type.equals(t.getType()))
-                .filter(t -> categoryId == null || categoryId.equals(String.valueOf(t.getCategoryId())))
-                .filter(t -> dateFrom == null || t.getTransactionDate().isAfter(LocalDate.parse(dateFrom)))
-                .filter(t -> dateTo == null || t.getTransactionDate().isBefore(LocalDate.parse(dateTo)))
-                .filter(t -> amountFrom == null || t.getAmount().compareTo(new BigDecimal(amountFrom)) >= 0)
-                .filter(t -> amountTo == null || t.getAmount().compareTo(new BigDecimal(amountTo)) <= 0)
+                .filter(t -> type == null || type.isEmpty() || type.equals(t.getType()))
+                .filter(t -> categoryId == null || categoryId.isEmpty() || categoryId.equals(String.valueOf(t.getCategoryId())))
+                .filter(t -> dateFrom == null || dateFrom.isEmpty() ||t.getTransactionDate().isAfter(LocalDate.parse(dateFrom)))
+                .filter(t -> dateTo == null || dateTo.isEmpty() ||t.getTransactionDate().isBefore(LocalDate.parse(dateTo)))
+                .filter(t -> amountFrom == null || amountFrom.isEmpty() || t.getAmount().compareTo(new BigDecimal(amountFrom)) >= 0)
+                .filter(t -> amountTo == null || amountTo.isEmpty() || t.getAmount().compareTo(new BigDecimal(amountTo)) <= 0)
                 .filter(t -> {
                     if (selectedTagSet.isEmpty()) return true;
                     java.util.List<Long> txTagIds = getTagsForTransaction(t.getId());
@@ -117,25 +123,22 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
-    private void validateTransaction(Transaction transaction) {
-        if (transaction.getAmount() == null || transaction.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("Transaction amount must be greater than zero");
+    @Override
+    public Map<String, List<Tag>> loadTagsForTransactions(List<Transaction> transactions) {
+        Map<String, List<Tag>> tagsByTransaction = new HashMap<>();
+
+        for (Transaction transaction : transactions) {
+            List<Long> tagIds = transactionDao.findTagIdsByTransaction(transaction.getId());
+
+            List<Tag> tags = new ArrayList<>();
+            for (Long tagId : tagIds) {
+                Optional<Tag> tagOpt = tagDao.findById(tagId);
+                if (tagOpt.isPresent()) {
+                    tags.add(tagOpt.get());
+                }
+            }
+            tagsByTransaction.put(String.valueOf(transaction.getId()), tags);
         }
-        
-        if (!Arrays.asList("INCOME", "EXPENSE").contains(transaction.getType())) {
-            throw new ValidationException("Transaction type must be INCOME or EXPENSE");
-        }
-        
-        if (transaction.getTransactionDate() == null) {
-            throw new ValidationException("Transaction date cannot be null");
-        }
-        
-        if (transaction.getAccountId() == null) {
-            throw new ValidationException("Account ID cannot be null");
-        }
-        
-        if (transaction.getCategoryId() == null) {
-            throw new ValidationException("Category ID cannot be null");
-        }
+        return tagsByTransaction;
     }
 }

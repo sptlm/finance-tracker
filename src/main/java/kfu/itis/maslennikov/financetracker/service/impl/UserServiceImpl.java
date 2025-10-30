@@ -38,21 +38,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto register(User user, String password) {
-        // Проверка уникальности username
         if (userDao.findByUsername(user.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("Username already exists: " + user.getUsername());
         }
 
-        // Проверка уникальности email
         if (userDao.findByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Email already exists: " + user.getEmail());
         }
 
-        // Шифрование пароля вашим методом
         String encryptedPassword = PasswordUtil.encrypt(password);
         user.setPasswordHash(encryptedPassword);
 
-        // Создание пользователя
         Long userId = userDao.create(user);
         user.setId(userId);
 
@@ -103,12 +99,10 @@ public class UserServiceImpl implements UserService {
 
         User user = userOpt.get();
 
-        // Проверка старого пароля
         if (!PasswordUtil.checkPassword(oldPassword, user.getPasswordHash())) {
             throw new AuthenticationException("Old password is incorrect");
         }
 
-        // Установка нового пароля
         String newEncryptedPassword = PasswordUtil.encrypt(newPassword);
         user.setPasswordHash(newEncryptedPassword);
 

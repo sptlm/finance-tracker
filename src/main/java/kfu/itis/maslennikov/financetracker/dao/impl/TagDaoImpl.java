@@ -21,7 +21,7 @@ public class TagDaoImpl implements TagDao {
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return Optional.of(mapRow(rs));
+                if (rs.next()) return Optional.of(rsToTag(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding tag by id", e);
@@ -37,7 +37,7 @@ public class TagDaoImpl implements TagDao {
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) tags.add(mapRow(rs));
+                while (rs.next()) tags.add(rsToTag(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding tags by user", e);
@@ -88,7 +88,7 @@ public class TagDaoImpl implements TagDao {
         }
     }
 
-    private Tag mapRow(ResultSet rs) throws SQLException {
+    private Tag rsToTag(ResultSet rs) throws SQLException {
         return new Tag(
             rs.getLong("id"),
             rs.getLong("user_id"),
@@ -96,6 +96,4 @@ public class TagDaoImpl implements TagDao {
             rs.getString("color")
         );
     }
-
-
 }
