@@ -27,9 +27,9 @@
 
                     <form method="post" action="${Application.contextPath}/login">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Имя пользователя</label>
-                            <input type="text" class="form-control" id="username" name="username"
-                                   value="${username!''}" required autocomplete="username"
+                            <label for="username" class="form-label">Имя пользователя или почта</label>
+                            <input type="text" class="form-control" id="usernameOrEmail" name="usernameOrEmail"
+                                   value="${usernameOrEmail!''}" required autocomplete="usernameOrEmail"
                                    placeholder="Введите имя пользователя">
                         </div>
 

@@ -124,7 +124,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean update(User user) {
-        String sql = "UPDATE users SET username = ?, email = ?, first_name = ?, last_name = ?" +
+        String sql = "UPDATE users SET username = ?, email = ?, first_name = ?, last_name = ?, password_hash = ? " +
                 " WHERE id = ?";
 
         try (Connection conn = DatabaseConnectionUtil.getConnection();
@@ -134,7 +134,8 @@ public class UserDaoImpl implements UserDao {
             pStatement.setString(2, user.getEmail());
             pStatement.setString(3, user.getFirstName());
             pStatement.setString(4, user.getLastName());
-            pStatement.setLong(5, user.getId());
+            pStatement.setString(5, user.getPasswordHash());
+            pStatement.setLong(6, user.getId());
 
             int rowsAffected = pStatement.executeUpdate();
             return rowsAffected > 0;

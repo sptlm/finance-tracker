@@ -1,6 +1,7 @@
 package kfu.itis.maslennikov.financetracker.servlet;
 
 import kfu.itis.maslennikov.financetracker.dto.UserDto;
+import kfu.itis.maslennikov.financetracker.entity.User;
 import kfu.itis.maslennikov.financetracker.exception.AuthenticationException;
 import kfu.itis.maslennikov.financetracker.service.UserService;
 
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Optional;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -29,28 +31,40 @@ public class LoginServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/dashboard");
             return;
         }
-        req.getRequestDispatcher("/WEB-INF/views/login.ftl").forward(req, resp); // forward к FreemarkerServlet [web:12]
+        if (req.getParameter("registered") !=null && req.getParameter("registered").equals("true")) {
+            req.setAttribute("successMessage", "Вы успешно зарегистрировались!");
+        }
+        req.getRequestDispatcher("/WEB-INF/views/login.ftl").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        String u = req.getParameter("username");
-        String p = req.getParameter("password");
-        if (u == null || u.isBlank() || p == null || p.isBlank()) {
-            req.setAttribute("errorMessage", "Введите имя пользователя и пароль");// request атрибут [комментарий]
-            req.getRequestDispatcher("/WEB-INF/views/login.ftl").forward(req, resp); // показать ошибку [web:12]
+        String usernameOrEmail = req.getParameter("usernameOrEmail");
+        String password = req.getParameter("password");
+
+        // Валидация
+        if (usernameOrEmail == null || usernameOrEmail.trim().isEmpty()) {
+            req.setAttribute("errorMessage", "Укажите имя пользователя или email");
+            req.getRequestDispatcher("/WEB-INF/views/login.ftl").forward(req, resp);
+            return;
+        }
+
+        if (password == null || password.isEmpty()) {
+            req.setAttribute("errorMessage", "Укажите пароль");
+            req.getRequestDispatcher("/WEB-INF/views/login.ftl").forward(req, resp);
             return;
         }
         try {
-            UserDto user = userService.authenticate(u.trim(), p); // бизнес‑логика [комментарий]
+
+            UserDto user = userService.authenticate(usernameOrEmail.trim(), password);
             HttpSession s = req.getSession();
-            s.setAttribute("user", user); // держим минимальные данные (DTO без пароля) [комментарий]
+            s.setAttribute("user", user);
             s.setMaxInactiveInterval(1800);
-            resp.sendRedirect(req.getContextPath() + "/dashboard"); // PRG редирект [web:151]
+            resp.sendRedirect(req.getContextPath() + "/dashboard");
         } catch (AuthenticationException ex) {
             req.setAttribute("errorMessage", "Неверное имя пользователя или пароль");
-            req.setAttribute("username", u);
-            req.getRequestDispatcher("/WEB-INF/views/login.ftl").forward(req, resp); // остаёмся на форме [web:12]
+            req.setAttribute("usernameOrEmail", usernameOrEmail);
+            req.getRequestDispatcher("/WEB-INF/views/login.ftl").forward(req, resp);
         }
     }
 }

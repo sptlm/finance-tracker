@@ -20,8 +20,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto authenticate(String username, String password) {
-        Optional<User> userOpt = userDao.findByUsername(username);
+    public UserDto authenticate(String usernameOrEmail, String password) {
+        Optional<User> userOpt;
+        if (usernameOrEmail.contains("@")) {
+            userOpt = userDao.findByEmail(usernameOrEmail);
+        } else {
+            userOpt = userDao.findByUsername(usernameOrEmail);
+        }
 
         if (userOpt.isEmpty()) {
             throw new AuthenticationException("User not found. Invalid username or password");
@@ -65,6 +70,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<UserDto> findByUsername(String username) {
+        Optional<User> user = userDao.findByUsername(username);
+        if (user.isPresent()){
+            return Optional.of(new UserDto(user.get()));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<UserDto> findByEmail(String email) {
+        Optional<User> user = userDao.findByEmail(email);
+        if (user.isPresent()){
+            return Optional.of(new UserDto(user.get()));
+        }
+        return Optional.empty();
+    }
+
+
+
+    @Override
     public boolean updateProfile(Long userId, String firstName, String lastName, String email) {
         Optional<User> userOpt = userDao.findById(userId);
 
@@ -74,7 +99,6 @@ public class UserServiceImpl implements UserService {
 
         User user = userOpt.get();
 
-        // Проверка email на уникальность, если он изменился
         if (!user.getEmail().equals(email)) {
             Optional<User> existingUser = userDao.findByEmail(email);
             if (existingUser.isPresent() && !existingUser.get().getId().equals(userId)) {
@@ -87,6 +111,35 @@ public class UserServiceImpl implements UserService {
         user.setEmail(email);
 
         return userDao.update(user);
+    }
+
+    @Override
+    public boolean update(User newUser) {
+        Optional<User> userOpt = userDao.findById(newUser.getId());
+
+        if (userOpt.isEmpty()) {
+            throw new ResourceNotFoundException("User not found with id: " + newUser.getId());
+        }
+
+        User user = userOpt.get();
+
+        if (!user.getEmail().equals(newUser.getEmail())) {
+            if (userDao.findByEmail(newUser.getEmail()).isPresent()) {
+                throw new UserAlreadyExistsException("Email already exists: " + user.getEmail());
+            }
+        }
+        if (!user.getUsername().equals(newUser.getUsername())) {
+            if (userDao.findByUsername(newUser.getUsername()).isPresent()) {
+                throw new UserAlreadyExistsException("Username already exists: " + user.getUsername());
+            }
+        }
+        if (newUser.getPasswordHash() != null && !newUser.getPasswordHash().isEmpty()) {
+            String newEncryptedPassword = PasswordUtil.encrypt(newUser.getPasswordHash());
+            newUser.setPasswordHash(newEncryptedPassword);
+        }else{
+            newUser.setPasswordHash(user.getPasswordHash());
+        }
+        return userDao.update(newUser);
     }
 
     @Override

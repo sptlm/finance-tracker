@@ -13,15 +13,24 @@ import java.io.IOException;
 public class FlashMessageFilter extends HttpFilter {
 
     @Override
-    protected void doFilter(HttpServletRequest req, HttpServletResponse resp, FilterChain chain)
-            throws IOException, ServletException {
-        
-        chain.doFilter(req, resp);
-
+    protected void doFilter(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
+
         if (session != null) {
-            session.removeAttribute("successMessage");
-            session.removeAttribute("errorMessage");
+            String successMessage = (String) session.getAttribute("successMessage");
+            String errorMessage = (String) session.getAttribute("errorMessage");
+
+            if (successMessage != null) {
+                req.setAttribute("successMessage", successMessage);
+                session.removeAttribute("successMessage");
+            }
+
+            if (errorMessage != null) {
+                req.setAttribute("errorMessage", errorMessage);
+                session.removeAttribute("errorMessage");
+            }
         }
+
+        chain.doFilter(req, resp);
     }
 }

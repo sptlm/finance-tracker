@@ -49,7 +49,6 @@ public class RegisterServlet extends HttpServlet {
         req.setAttribute("firstName", firstName);
         req.setAttribute("lastName", lastName);
 
-        // Валидация
         if (!ValidationUtil.isValidUsername(username)) {
             req.setAttribute("errorMessage", 
                 "Имя пользователя должно содержать 3-50 символов (буквы, цифры, _)");
@@ -77,7 +76,6 @@ public class RegisterServlet extends HttpServlet {
         }
         
         try {
-            // Создание пользователя
             User user = new User();
             user.setUsername(username.trim());
             user.setEmail(email.trim());
@@ -86,10 +84,7 @@ public class RegisterServlet extends HttpServlet {
             
             UserDto registeredUser = userService.register(user, password);
             
-            // Создание дефолтных категорий
             categoryService.createDefaultCategories(registeredUser.getId());
-            
-            // POST-Redirect-GET: редирект на страницу входа
             resp.sendRedirect(req.getContextPath() + "/login?registered=true");
             
         } catch (UserAlreadyExistsException e) {

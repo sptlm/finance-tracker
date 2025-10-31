@@ -14,7 +14,13 @@ public interface UserService {
 
     Optional<UserDto> findById(Long id);
 
+    Optional<UserDto> findByUsername(String username);
+
+    Optional<UserDto> findByEmail(String email);
+
     boolean updateProfile(Long userId, String firstName, String lastName, String email);
+
+    boolean update(User user);
 
     boolean changePassword(Long userId, String oldPassword, String newPassword);
 }
