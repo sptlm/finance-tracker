@@ -5,6 +5,7 @@ import kfu.itis.maslennikov.financetracker.entity.Category;
 import kfu.itis.maslennikov.financetracker.exception.ResourceNotFoundException;
 import kfu.itis.maslennikov.financetracker.exception.ValidationException;
 import kfu.itis.maslennikov.financetracker.service.CategoryService;
+import kfu.itis.maslennikov.financetracker.util.ValidationUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,14 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Long create(Category category) {
-        if (category.getName() == null || category.getName().trim().isEmpty()) {
-            throw new ValidationException("Category name cannot be empty");
-        }
-        
-        if (!Arrays.asList("INCOME", "EXPENSE").contains(category.getType())) {
-            throw new ValidationException("Category type must be INCOME or EXPENSE");
-        }
-        
+        ValidationUtil.validateCategory(category);
         return categoryDao.create(category);
     }
 
@@ -51,7 +45,8 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryDao.findById(category.getId()).isEmpty()) {
             throw new ResourceNotFoundException("Category not found with id: " + category.getId());
         }
-        
+
+        ValidationUtil.validateCategory(category);
         return categoryDao.update(category);
     }
 
@@ -66,7 +61,6 @@ public class CategoryServiceImpl implements CategoryService {
         if (!categoryOpt.get().getUserId().equals(userId)) {
             throw new ValidationException("You don't have permission to delete this category");
         }
-        
         return categoryDao.delete(id);
     }
 

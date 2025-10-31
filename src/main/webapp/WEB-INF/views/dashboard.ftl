@@ -3,6 +3,17 @@
 <#macro title>Панель управления - Финансовый Трекер</#macro>
 
 <#macro content>
+    <#if errorMessage??>
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-circle"></i> ${errorMessage}
+        </div>
+    </#if>
+
+    <#if successMessage??>
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> ${successMessage}
+        </div>
+    </#if>
     <h1 class="mb-4">
         <i class="bi bi-house-door"></i>
         Добро пожаловать, ${Session.user.firstName!Session.user.username}!
@@ -373,7 +384,7 @@
         }
     </style>
 
-    <!-- Chart.js скрипты -->
+    <!-- Chart.js скрипт -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         const expensesData = ${expensesChartData};
@@ -382,9 +393,9 @@
         // Функция для генерации цветов
         function getColors(count) {
             const colors = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                '#9966FF', '#FF9F40', '#E7E9ED', '#C9CBCF',
-                '#667eea', '#764ba2', '#f093fb', '#4facfe'
+                '#72adb1', '#8aa9f4', '#343b73', '#6a3d8a',
+                '#baf682', '#70a85f', '#36633a', '#9ef1ea',
+                '#c15e73', '#f3a37a', '#c89b60', '#f1e677'
             ];
             return colors.slice(0, count);
         }
@@ -410,7 +421,8 @@
                             position: 'bottom',
                             labels: {
                                 padding: 15,
-                                font: { size: 12 }
+                                font: { size: 12 },
+                                usePointStyle: true,
                             }
                         }
                     },
@@ -445,7 +457,8 @@
                             position: 'bottom',
                             labels: {
                                 padding: 15,
-                                font: { size: 12 }
+                                font: { size: 12 },
+                                usePointStyle: true,
                             }
                         }
                     },

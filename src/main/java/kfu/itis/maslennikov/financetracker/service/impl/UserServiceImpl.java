@@ -8,6 +8,7 @@ import kfu.itis.maslennikov.financetracker.exception.ResourceNotFoundException;
 import kfu.itis.maslennikov.financetracker.exception.UserAlreadyExistsException;
 import kfu.itis.maslennikov.financetracker.service.UserService;
 import kfu.itis.maslennikov.financetracker.util.PasswordUtil;
+import kfu.itis.maslennikov.financetracker.util.ValidationUtil;
 
 import java.util.Optional;
 
@@ -139,6 +140,7 @@ public class UserServiceImpl implements UserService {
         }else{
             newUser.setPasswordHash(user.getPasswordHash());
         }
+
         return userDao.update(newUser);
     }
 

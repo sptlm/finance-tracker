@@ -47,13 +47,19 @@ public class ProfileServlet extends HttpServlet {
         String newPassword = req.getParameter("newPassword");
         String confirmPassword = req.getParameter("confirmPassword");
 
-        // Валидация
         if (!ValidationUtil.isValidUsername(username)) {
             req.setAttribute("errorMessage",
                     "Имя пользователя должно содержать 3-50 символов (буквы, цифры, _)");
             req.getRequestDispatcher("/WEB-INF/views/profile.ftl").forward(req, resp);
             return;
         }
+        if (!ValidationUtil.isValidUsername(username)) {
+            req.setAttribute("errorMessage",
+                    "Имя и Фамилия должны содержать 3-50 символов (буквы, цифры, _)");
+            req.getRequestDispatcher("/WEB-INF/views/profile.ftl").forward(req, resp);
+            return;
+        }
+
         if (newPassword != null && !newPassword.isEmpty()) {
             if (!ValidationUtil.isValidPassword(newPassword)) {
                 req.setAttribute("errorMessage",

@@ -19,6 +19,12 @@
                         </div>
                     </#if>
 
+                    <#if successMessage??>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i> ${successMessage}
+                        </div>
+                    </#if>
+
                     <form method="post" action="${Application.contextPath}/register">
                         <div class="row">
                             <div class="col-md-6 mb-3">

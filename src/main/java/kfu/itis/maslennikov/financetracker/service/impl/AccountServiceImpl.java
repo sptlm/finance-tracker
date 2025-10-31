@@ -6,11 +6,10 @@ import kfu.itis.maslennikov.financetracker.entity.Account;
 import kfu.itis.maslennikov.financetracker.exception.ResourceNotFoundException;
 import kfu.itis.maslennikov.financetracker.exception.ValidationException;
 import kfu.itis.maslennikov.financetracker.service.AccountService;
+import kfu.itis.maslennikov.financetracker.util.ValidationUtil;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class AccountServiceImpl implements AccountService {
@@ -35,14 +34,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Long create(Account account) {
-        if (account.getName() == null || account.getName().trim().isEmpty()) {
-            throw new ValidationException("Имя аккаунта не может быть пустым");
-        }
-
-        if (account.getCurrencyId() == null || account.getCurrencyId() <= 0) {
-            throw new ValidationException("Валюта не может быть пустой");
-        }
-        
         // текущий баланс = начальному, если не установлен
         if (account.getInitialBalance() == null) {
             account.setInitialBalance(BigDecimal.ZERO);
@@ -50,24 +41,18 @@ public class AccountServiceImpl implements AccountService {
         if (account.getCurrentBalance() == null) {
             account.setCurrentBalance(account.getInitialBalance());
         }
-        
+
+        ValidationUtil.validateAccount(account);
         return accountDao.create(account);
     }
 
     @Override
     public boolean update(Account account) {
-        if (account.getId() == null || account.getId() <= 0) {
-            throw new ValidationException("ID счета должен быть указан");
+        if (accountDao.findById(account.getId()).isEmpty()) {
+            throw new ResourceNotFoundException("Account not found with id: " + account.getId());
         }
 
-        if (account.getName() == null || account.getName().trim().isEmpty()) {
-            throw new ValidationException("Название счета не может быть пустым");
-        }
-
-        if (account.getCurrencyId() == null || account.getCurrencyId() <= 0) {
-            throw new ValidationException("Валюта должна быть указана");
-        }
-
+        ValidationUtil.validateAccount(account);
         return accountDao.update(account);
     }
 
@@ -99,21 +84,6 @@ public class AccountServiceImpl implements AccountService {
                     )
             );
         }
-        return result;
-    }
-
-    public Map<String, BigDecimal> getTotalBalanceByAllCurrencies(Long userId) {
-        List<Account> accounts = findByUserId(userId);
-
-        Map<String, BigDecimal> result = new HashMap<>();
-
-        for (Account account : accounts) {
-            String currencyCode = currencyDao.findById(account.getCurrencyId()).get().getCode();
-            BigDecimal balance = account.getCurrentBalance() != null ? account.getCurrentBalance() : BigDecimal.ZERO;
-
-            result.put(currencyCode, result.getOrDefault(currencyCode, BigDecimal.ZERO).add(balance));
-        }
-
         return result;
     }
 }

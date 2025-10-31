@@ -9,6 +9,17 @@
             <i class="bi bi-plus-circle"></i> Добавить счёт
         </button>
     </div>
+    <#if errorMessage??>
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-circle"></i> ${errorMessage}
+        </div>
+    </#if>
+
+    <#if successMessage??>
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> ${successMessage}
+        </div>
+    </#if>
 
     <!-- Общий баланс -->
     <#if totalBalance??>

@@ -5,6 +5,7 @@ import kfu.itis.maslennikov.financetracker.entity.Tag;
 import kfu.itis.maslennikov.financetracker.exception.ResourceNotFoundException;
 import kfu.itis.maslennikov.financetracker.exception.ValidationException;
 import kfu.itis.maslennikov.financetracker.service.TagService;
+import kfu.itis.maslennikov.financetracker.util.ValidationUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,10 +30,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Long create(Tag tag) {
-        if (tag.getName() == null || tag.getName().trim().isEmpty()) {
-            throw new ValidationException("Tag name cannot be empty");
-        }
-        
+        ValidationUtil.validateTag(tag);
         return tagDao.create(tag);
     }
 
@@ -41,7 +39,7 @@ public class TagServiceImpl implements TagService {
         if (tagDao.findById(tag.getId()).isEmpty()) {
             throw new ResourceNotFoundException("Tag not found with id: " + tag.getId());
         }
-        
+        ValidationUtil.validateTag(tag);
         return tagDao.update(tag);
     }
 

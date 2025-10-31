@@ -5,10 +5,21 @@
 <#macro content>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-grid"></i> Категории</h1>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+        <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createModal">
             <i class="bi bi-plus-circle"></i> Добавить категорию
         </button>
     </div>
+    <#if errorMessage??>
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-circle"></i> ${errorMessage}
+        </div>
+    </#if>
+
+    <#if successMessage??>
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> ${successMessage}
+        </div>
+    </#if>
 
     <!-- Разделение по типам -->
     <div class="row">

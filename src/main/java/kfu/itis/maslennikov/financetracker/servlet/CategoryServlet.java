@@ -69,7 +69,6 @@ public class CategoryServlet extends HttpServlet {
         String color = req.getParameter("color");
         String icon = req.getParameter("icon");
 
-        // Используем конструктор
         Category category = new Category(null, userId, name, type, color, icon);
         categoryService.create(category);
     }
