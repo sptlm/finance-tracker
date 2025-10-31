@@ -60,6 +60,7 @@
     </style>
 </head>
 
+<#-- header -->
 <body>
 <#if Session.user??>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -128,22 +129,6 @@
 <#-- Основной контент -->
 <main class="main-content">
     <div class="container mt-4">
-        <#-- Flash сообщения -->
-        <#if Session.successMessage??>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle"></i> ${Session.successMessage}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </#if>
-
-        <#if Session.errorMessage??>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle"></i> ${Session.errorMessage}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </#if>
-
-        <#-- Основной контент -->
         <div class="content">
             <@content></@content>
         </div>

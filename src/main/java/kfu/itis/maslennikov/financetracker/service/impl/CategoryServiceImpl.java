@@ -68,14 +68,14 @@ public class CategoryServiceImpl implements CategoryService {
     public void createDefaultCategories(Long userId) {
         // Создание стандартных категорий расходов
         String[][] expenseCategories = {
-            {"Продукты", "#FF6B6B", "food"},
-            {"Транспорт", "#4ECDC4", "transport"},
-            {"Здоровье", "#45B7D1", "health"},
-            {"Развлечения", "#FFA07A", "entertainment"},
-            {"Коммунальные услуги", "#98D8C8", "utilities"},
-            {"Одежда", "#F7DC6F", "clothes"},
-            {"Образование", "#BB8FCE", "education"},
-            {"Прочее", "#85929E", "other"}
+            {"Продукты", "#FF6B6B", "basket2-fill"},
+            {"Транспорт", "#4ECDC4", "bus-front-fill"},
+            {"Здоровье", "#C15E73", "heart-pulse"},
+            {"Развлечения", "#FFA07A", "balloon-fill"},
+            {"Коммунальные услуги", "#98D8C8", "droplet"},
+            {"Одежда", "#F7DC6F", "backpack3-fill"},
+            {"Образование", "#BB8FCE", "book"},
+            {"Прочее", "#85929E", "three-dots"}
         };
         
         for (String[] cat : expenseCategories) {
@@ -90,11 +90,11 @@ public class CategoryServiceImpl implements CategoryService {
         
         // Создание стандартных категорий доходов
         String[][] incomeCategories = {
-            {"Зарплата", "#52BE80", "salary"},
-            {"Фриланс", "#5DADE2", "freelance"},
-            {"Инвестиции", "#F8B739", "investments"},
-            {"Подарки", "#EC7063", "gifts"},
-            {"Прочее", "#85929E", "other"}
+            {"Зарплата", "#52BE80", "cash-coin"},
+            {"Фриланс", "#5DADE2", "laptop"},
+            {"Инвестиции", "#F8B739", "bar-chart-line-fill"},
+            {"Подарки", "#EC7063", "gift-fill"},
+            {"Прочее", "#85929E", "three-dots"}
         };
         
         for (String[] cat : incomeCategories) {
