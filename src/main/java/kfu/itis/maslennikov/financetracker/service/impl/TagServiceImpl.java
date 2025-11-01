@@ -35,9 +35,13 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public boolean update(Tag tag) {
-        if (tagDao.findById(tag.getId()).isEmpty()) {
-            throw new ResourceNotFoundException("Tag not found with id: " + tag.getId());
+    public boolean update(Tag tag, Long userId) {
+        Optional<Tag> tagOpt = tagDao.findById(tag.getId());
+        if (tagOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Тег не найден с таким id: " + tag.getId());
+        }
+        if (!tagOpt.get().getUserId().equals(userId)) {
+            throw new ValidationException("У вас нет прав на изменение этого тега");
         }
         ValidationUtil.validateTag(tag);
         return tagDao.update(tag);
@@ -46,15 +50,12 @@ public class TagServiceImpl implements TagService {
     @Override
     public boolean delete(Long id, Long userId) {
         Optional<Tag> tagOpt = tagDao.findById(id);
-        
         if (tagOpt.isEmpty()) {
-            throw new ResourceNotFoundException("Tag not found with id: " + id);
+            throw new ResourceNotFoundException("Тег не найден с таким id: " + id);
         }
-        
         if (!tagOpt.get().getUserId().equals(userId)) {
-            throw new ValidationException("You don't have permission to delete this tag");
+            throw new ValidationException("У вас нет прав на изменение этого тега");
         }
-        
         return tagDao.delete(id);
     }
 }

@@ -15,7 +15,7 @@ public interface CategoryService {
 
     Long create(Category category);
 
-    boolean update(Category category);
+    boolean update(Category category, Long userId);
 
     boolean delete(Long id, Long userId); // userId для проверки прав
 

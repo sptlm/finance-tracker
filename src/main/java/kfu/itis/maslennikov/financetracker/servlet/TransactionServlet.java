@@ -104,7 +104,7 @@ public class TransactionServlet extends HttpServlet {
                 case null, default -> req.getSession().setAttribute("errorMessage", "Неизвестное действие");
             }
         } catch (Exception e) {
-            req.getSession().setAttribute("errorMessage", "Ошибка: " + e.getMessage());
+            req.getSession().setAttribute("errorMessage", "Ошибка: " + e.getMessage() + Arrays.toString(e.getStackTrace()));
         }
         resp.sendRedirect(req.getContextPath() + "/transactions");
     }
@@ -123,7 +123,9 @@ public class TransactionServlet extends HttpServlet {
         String[] tagIds = req.getParameterValues("tagIds");
         if (tagIds != null && tagIds.length > 0) {
             List<Long> tagIdList = Arrays.stream(tagIds).map(Long::parseLong).collect(Collectors.toList());
-            transactionService.addTagsToTransaction(id, tagIdList);
+            UserDto user = (UserDto) req.getSession().getAttribute("user");
+            Long userId = user.getId();
+            transactionService.addTagsToTransaction(id, tagIdList, userId);
         }
     }
 
@@ -137,11 +139,15 @@ public class TransactionServlet extends HttpServlet {
         LocalDate date = LocalDate.parse(req.getParameter("transactionDate"));
 
         Transaction t = new Transaction(id, accountId, categoryId, amount, type, description, date);
-        transactionService.update(t);
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
+        transactionService.update(t, userId);
     }
 
     private void handleDelete(HttpServletRequest req) {
         Long id = Long.parseLong(req.getParameter("id"));
-        transactionService.delete(id);
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
+        transactionService.delete(id, userId);
     }
 }

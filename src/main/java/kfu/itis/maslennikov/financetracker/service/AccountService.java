@@ -13,7 +13,7 @@ public interface AccountService {
 
     Long create(Account account);
 
-    boolean update(Account account);
+    boolean update(Account account, Long userId);
 
     boolean delete(Long id, Long userId); // userId для проверки прав
 

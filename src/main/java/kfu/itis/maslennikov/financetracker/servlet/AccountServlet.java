@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @WebServlet("/accounts")
 public class AccountServlet extends HttpServlet {
-    
+
     private AccountService accountService;
     private CurrencyService currencyService;
     @Override
@@ -64,7 +64,7 @@ public class AccountServlet extends HttpServlet {
         
         try {
             if ("create".equals(action)) {
-                handleCreate(req, user.getId());
+                handleCreate(req);
                 req.getSession().setAttribute("successMessage", "Счёт успешно создан");
             } else if ("update".equals(action)) {
                 handleUpdate(req);
@@ -81,11 +81,12 @@ public class AccountServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/accounts");
     }
     
-    private void handleCreate(HttpServletRequest req, Long userId) {
+    private void handleCreate(HttpServletRequest req) {
         String name = req.getParameter("name");
         Long currencyId = Long.parseLong(req.getParameter("currencyId"));
         BigDecimal initialBalance = new BigDecimal(req.getParameter("initialBalance"));
-        
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
         Account account = new Account(null, userId,name,currencyId,initialBalance, initialBalance);
         
         accountService.create(account);
@@ -102,14 +103,19 @@ public class AccountServlet extends HttpServlet {
         }
         account.get().setName(name);
         account.get().setCurrencyId(currencyId);
-        
-        accountService.update(account.get());
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
+        accountService.update(account.get(), userId);
     }
     
     private void handleDelete(HttpServletRequest req) {
         Long id = Long.parseLong(req.getParameter("id"));
         UserDto user = (UserDto) req.getSession().getAttribute("user");
         Long userId = user.getId();
+        Optional<Account> account = accountService.findById(id);
+        if (account.isEmpty()) {
+            throw new ResourceNotFoundException("Аккаунт не найден с таким id: " + id);
+        }
         accountService.delete(id,userId);
     }
 }

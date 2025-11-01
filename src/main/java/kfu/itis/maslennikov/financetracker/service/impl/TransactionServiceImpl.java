@@ -1,10 +1,13 @@
 package kfu.itis.maslennikov.financetracker.service.impl;
 
+import kfu.itis.maslennikov.financetracker.dao.AccountDao;
+import kfu.itis.maslennikov.financetracker.dao.CategoryDao;
 import kfu.itis.maslennikov.financetracker.dao.TagDao;
 import kfu.itis.maslennikov.financetracker.dao.TransactionDao;
 import kfu.itis.maslennikov.financetracker.entity.Tag;
 import kfu.itis.maslennikov.financetracker.entity.Transaction;
 import kfu.itis.maslennikov.financetracker.exception.ResourceNotFoundException;
+import kfu.itis.maslennikov.financetracker.exception.ValidationException;
 import kfu.itis.maslennikov.financetracker.service.TransactionService;
 import kfu.itis.maslennikov.financetracker.util.ValidationUtil;
 
@@ -24,10 +27,14 @@ public class TransactionServiceImpl implements TransactionService {
     
     private final TransactionDao transactionDao;
     private final TagDao tagDao;
+    private final AccountDao accountDao;
+    private final CategoryDao categoryDao;
 
-    public TransactionServiceImpl(TransactionDao transactionDao, TagDao tagDao) {
+    public TransactionServiceImpl(TransactionDao transactionDao, TagDao tagDao, AccountDao accountDao, CategoryDao categoryDao) {
         this.transactionDao = transactionDao;
         this.tagDao = tagDao;
+        this.accountDao = accountDao;
+        this.categoryDao = categoryDao;
     }
 
     @Override
@@ -58,39 +65,69 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public boolean update(Transaction transaction) {
-        if (transactionDao.findById(transaction.getId()).isEmpty()) {
-            throw new ResourceNotFoundException("Transaction not found with id: " + transaction.getId());
+    public boolean update(Transaction transaction, Long userId) {
+        Optional<Transaction> transactionOpt = transactionDao.findById(transaction.getId());
+        if (transactionOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Транзакция не найдена с таким id: " + transaction.getId());
         }
-        
+        Long ownerUserId = accountDao.findById(transactionOpt.get().getAccountId()).get().getUserId();
+        if (!ownerUserId.equals(userId)) {
+            throw new ValidationException("У вас нет прав на изменение этой транзакции");
+        }
+        if(!accountDao.findById(transaction.getAccountId()).get().getUserId().equals(userId)) {
+            throw new ValidationException("Нельзя указывать чужой счет в транзакции");
+        }
+        if(!categoryDao.findById(transaction.getCategoryId()).get().getUserId().equals(userId)) {
+            throw new ValidationException("Нельзя указывать чужую категорию в транзакции");
+        }
         ValidationUtil.validateTransaction(transaction);
-        
         return transactionDao.update(transaction);
     }
 
     @Override
-    public boolean delete(Long id) {
-        if (transactionDao.findById(id).isEmpty()) {
-            throw new ResourceNotFoundException("Transaction not found with id: " + id);
+    public boolean delete(Long id, Long userId) {
+
+        Optional<Transaction> transactionOpt = transactionDao.findById(id);
+        if (transactionOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Транзакция не найдена с таким id: " + id);
         }
-        
+        Long ownerUserId = accountDao.findById(transactionOpt.get().getAccountId()).get().getUserId();
+
+        if (!ownerUserId.equals(userId)) {
+            throw new ValidationException("У вас нет прав на удаление этой транзакции");
+        }
         return transactionDao.delete(id);
     }
 
     @Override
-    public void addTagsToTransaction(Long transactionId, List<Long> tagIds) {
-        if (tagIds == null || tagIds.isEmpty()) {
-            return;
+    public void addTagsToTransaction(Long id, List<Long> tagIds, Long userId) {
+        Optional<Transaction> transactionOpt = transactionDao.findById(id);
+        if (transactionOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Транзакция не найдена с таким id: " + id);
+        }
+        Long ownerUser = accountDao.findById(transactionOpt.get().getAccountId()).get().getUserId();
+
+        if (!ownerUser.equals(userId)) {
+            throw new ValidationException("У вас нет прав на удаление этой транзакции");
         }
         
         for (Long tagId : tagIds) {
-            transactionDao.addTagToTransaction(transactionId, tagId);
+            transactionDao.addTagToTransaction(id, tagId);
         }
     }
 
     @Override
-    public void removeTagFromTransaction(Long transactionId, Long tagId) {
-        transactionDao.removeTagFromTransaction(transactionId, tagId);
+    public void removeTagFromTransaction(Long id, Long tagId, Long userId) {
+        Optional<Transaction> transactionOpt = transactionDao.findById(id);
+        if (transactionOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Транзакция не найдена с таким id: " + id);
+        }
+        Long ownerUser = accountDao.findById(transactionOpt.get().getAccountId()).get().getUserId();
+
+        if (!ownerUser.equals(userId)) {
+            throw new ValidationException("У вас нет прав на удаление этой транзакции");
+        }
+        transactionDao.removeTagFromTransaction(id, tagId);
     }
 
     @Override

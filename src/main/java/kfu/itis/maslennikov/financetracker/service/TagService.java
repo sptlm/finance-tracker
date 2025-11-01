@@ -12,7 +12,7 @@ public interface TagService {
 
     Long create(Tag tag);
 
-    boolean update(Tag tag);
+    boolean update(Tag tag, Long userId);
 
     boolean delete(Long id, Long userId);
 }

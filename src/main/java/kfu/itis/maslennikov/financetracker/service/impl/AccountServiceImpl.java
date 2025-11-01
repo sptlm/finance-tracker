@@ -34,7 +34,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Long create(Account account) {
-        // текущий баланс = начальному, если не установлен
         if (account.getInitialBalance() == null) {
             account.setInitialBalance(BigDecimal.ZERO);
         }
@@ -47,11 +46,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean update(Account account) {
-        if (accountDao.findById(account.getId()).isEmpty()) {
-            throw new ResourceNotFoundException("Account not found with id: " + account.getId());
+    public boolean update(Account account, Long userId) {
+        Optional<Account> accountOpt = accountDao.findById(account.getId());
+        if (accountOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Аккаунт не найден с таким id: " + account.getId());
         }
-
+        if (!accountOpt.get().getUserId().equals(userId)) {
+            throw new ValidationException("У вас нет прав на изменение этого аккаунта");
+        }
         ValidationUtil.validateAccount(account);
         return accountDao.update(account);
     }
@@ -59,15 +61,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean delete(Long id, Long userId) {
         Optional<Account> accountOpt = accountDao.findById(id);
-        
         if (accountOpt.isEmpty()) {
             throw new ResourceNotFoundException("Аккаунт не найден с таким id: " + id);
         }
-        
         if (!accountOpt.get().getUserId().equals(userId)) {
             throw new ValidationException("У вас нет прав на удаление этого аккаунта");
         }
-        
         return accountDao.delete(id);
     }
 

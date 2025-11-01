@@ -99,7 +99,7 @@
                                     <strong>${account.name}</strong>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark">${account.currency}</span>
+                                    <span class="badge bg-light text-dark">${account.currency.symbol} ${account.currency.code} - ${account.currency.name}</span>
                                 </td>
                                 <td class="text-end">
                                     ${account.initialBalance?string('0.00')} ₽
@@ -433,7 +433,7 @@
             });
         } else {
             document.getElementById('expensesChart').parentElement.innerHTML =
-                '<p class="text-muted text-center py-5">Нет данных о расходах</p>';
+                '<p class="text-muted text-center py-5">Нет данных о расходах за этот месяц</p>';
         }
 
         // Доходы Pie Chart
@@ -469,7 +469,7 @@
             });
         } else {
             document.getElementById('incomeChart').parentElement.innerHTML =
-                '<p class="text-muted text-center py-5">Нет данных о доходах</p>';
+                '<p class="text-muted text-center py-5">Нет данных о доходах за этот месяц</p>';
         }
     </script>
 </#macro>

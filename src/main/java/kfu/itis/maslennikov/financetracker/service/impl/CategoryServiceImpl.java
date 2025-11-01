@@ -7,7 +7,6 @@ import kfu.itis.maslennikov.financetracker.exception.ValidationException;
 import kfu.itis.maslennikov.financetracker.service.CategoryService;
 import kfu.itis.maslennikov.financetracker.util.ValidationUtil;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,11 +40,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public boolean update(Category category) {
-        if (categoryDao.findById(category.getId()).isEmpty()) {
-            throw new ResourceNotFoundException("Category not found with id: " + category.getId());
+    public boolean update(Category category, Long userId) {
+        Optional<Category> categoryOpt = categoryDao.findById(category.getId());
+        if (categoryOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Категория не найдена с таким id: " + category.getId());
         }
-
+        if (!categoryOpt.get().getUserId().equals(userId)) {
+            throw new ValidationException("У вас нет прав на изменение этой категории");
+        }
         ValidationUtil.validateCategory(category);
         return categoryDao.update(category);
     }
@@ -53,13 +55,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public boolean delete(Long id, Long userId) {
         Optional<Category> categoryOpt = categoryDao.findById(id);
-        
         if (categoryOpt.isEmpty()) {
-            throw new ResourceNotFoundException("Category not found with id: " + id);
+            throw new ResourceNotFoundException("Категория не найдена с таким id: " + id);
         }
-        
         if (!categoryOpt.get().getUserId().equals(userId)) {
-            throw new ValidationException("You don't have permission to delete this category");
+            throw new ValidationException("У вас нет прав на удаление этой категории");
         }
         return categoryDao.delete(id);
     }

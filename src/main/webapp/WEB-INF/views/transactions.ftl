@@ -211,9 +211,9 @@
                                 </td>
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-outline-primary"
+                                            onclick="editTransaction(${t.id?c}, '${t.accountId?c}', '${t.categoryId?c}', '${t.amount}', '${t.type}', '${t.transactionDate}', '${(t.description!'')}')"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editModal"
-                                            onclick="loadTransactionForEdit(${t.id?c})"
                                             title="Редактировать">
                                         <i class="bi bi-pencil"></i>
                                     </button>
@@ -401,7 +401,7 @@
                                 <#if accounts?has_content>
                                     <#list accounts as acc>
                                         <option value="${acc.id?c}">
-                                            ${acc.name} (${acc.currentBalance?string('0.00')} ${acc.currency})
+                                            ${acc.name} (${acc.currentBalance?string('0.00')} ${acc.currency.symbol})
                                         </option>
                                     </#list>
                                 </#if>
@@ -417,6 +417,7 @@
                                     </label>
                                     <select id="editType" name="type" class="form-select" required
                                             onchange="updateCategoryOptions('editCategoryId', this.value)">
+                                        <option value="">-- Выберите тип --</option>
                                         <option value="INCOME">Доход</option>
                                         <option value="EXPENSE">Расход</option>
                                     </select>
@@ -443,7 +444,7 @@
                                         <i class="bi bi-cash"></i> Сумма <span class="text-danger">*</span>
                                     </label>
                                     <input type="number" id="editAmount" name="amount" class="form-control"
-                                           min="0.01" step="0.01" required>
+                                           placeholder="0.00" min="0.01" step="0.01" required>
                                 </div>
                             </div>
 
@@ -589,45 +590,28 @@
         }
 
 
-        function loadTransactionForEdit(transactionId) {
-            // Находим строку с данными транзакции
-            const row = document.querySelector('tr[data-transaction-id="' + transactionId + '"]');
-            if (!row) {
-                alert('Ошибка: транзакция не найдена');
-                return;
-            }
+        function editTransaction(id, accountId, categoryId, amount, type, date, description) {
+            // Заполняем ID
+            document.getElementById('editId').value = id;
 
-            // Извлекаем данные из строки таблицы
-            const cells = row.querySelectorAll('td');
-            const date = cells[0].textContent.trim();
-            const typeBadge = cells[1].querySelector('.badge');
-            const type = typeBadge.textContent.includes('Доход') ? 'INCOME' : 'EXPENSE';
-            const category = cells[2].textContent.trim();
-            const description = cells[3].textContent.trim();
-            const amountCell = cells[4];
-            const amount = amountCell.textContent.match(/[\d.]+/)[0];
+            // Заполняем счет
+            document.getElementById('editAccountId').value = accountId;
 
-            // Заполняем форму редактирования
-            document.getElementById('editId').value = transactionId;
+            // Заполняем тип и обновляем категории
             document.getElementById('editType').value = type;
-            document.getElementById('editAmount').value = amount;
-            document.getElementById('editDate').value = date;
-            document.getElementById('editDescription').value = description !== '-' ? description : '';
-
-            // Обновляем опции категорий
             updateCategoryOptions('editCategoryId', type);
 
-            // Устанавливаем категорию
+            // Заполняем категорию (с задержкой)
             setTimeout(function() {
-                for (const [id, cat] of Object.entries(categoriesData)) {
-                    if (cat.name === category.trim() && cat.type === type) {
-                        document.getElementById('editCategoryId').value = id;
-                        break;
-                    }
-                }
-            }, 100);
+                document.getElementById('editCategoryId').value = categoryId;
+            }, 50);
 
-            // Очищаем выбранные теги
+            // Заполняем остальные поля
+            document.getElementById('editAmount').value = amount;
+            document.getElementById('editDate').value = date;
+            document.getElementById('editDescription').value = description || '';
+
+            // Очищаем теги
             document.querySelectorAll('.edit-tag-checkbox').forEach(function(checkbox) {
                 checkbox.checked = false;
             });

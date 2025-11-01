@@ -40,7 +40,7 @@ public class ValidationUtil {
     }
 
     public static boolean isValidBalance(BigDecimal balance) {
-        return balance != null && balance.compareTo(BigDecimal.ZERO) >= 0;
+        return balance != null && balance.compareTo(BigDecimal.ZERO) >= 0 && balance.compareTo(new BigDecimal(999_999_999_999_999L)) <= 0;
     }
 
     public static boolean isValidCategoryName(String name) {
@@ -60,7 +60,7 @@ public class ValidationUtil {
     }
 
     public static boolean isValidTransactionAmount(BigDecimal amount) {
-        return amount != null && amount.compareTo(BigDecimal.ZERO) > 0;
+        return amount != null && amount.compareTo(BigDecimal.ZERO) > 0 && amount.compareTo(new BigDecimal(999_999_999_999L)) <= 0;
     }
 
     public static boolean isValidTransactionType(String type) {
@@ -94,11 +94,11 @@ public class ValidationUtil {
         }
 
         if (!isValidBalance(account.getInitialBalance())) {
-            throw new ValidationException("Начальный баланс не может быть отрицательным");
+            throw new ValidationException("Начальный баланс не может быть отрицательным или больше 1 квадриллиона");
         }
 
         if (!isValidBalance(account.getCurrentBalance())) {
-            throw new ValidationException("Текущий баланс не может быть отрицательным");
+            throw new ValidationException("Текущий баланс не может быть отрицательным или больше 1 квадриллиона");
         }
     }
 
@@ -131,7 +131,7 @@ public class ValidationUtil {
 
         if (transaction.getAmount() == null ||
                 !isValidTransactionAmount(transaction.getAmount())) {
-            throw new ValidationException("Сумма транзакции должна быть больше нуля");
+            throw new ValidationException("Сумма транзакции должна быть больше нуля и меньше 1 триллиона");
         }
 
         if (!isValidTransactionType(transaction.getType())) {

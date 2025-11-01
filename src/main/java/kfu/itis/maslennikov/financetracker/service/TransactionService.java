@@ -19,14 +19,13 @@ public interface TransactionService {
 
     Long create(Transaction transaction);
 
-    boolean update(Transaction transaction);
+    boolean update(Transaction transaction, Long userId);
 
-    boolean delete(Long id);
-    
-    // Методы для работы с тегами
-    void addTagsToTransaction(Long transactionId, List<Long> tagIds);
+    boolean delete(Long id, Long userId);
 
-    void removeTagFromTransaction(Long transactionId, Long tagId);
+    void addTagsToTransaction(Long id, List<Long> tagIds, Long userId);
+
+    void removeTagFromTransaction(Long id, Long tagId, Long userId);
 
     List<Long> getTagsForTransaction(Long transactionId);
 

@@ -183,14 +183,6 @@
                                         </option>
                                     </#list>
                                 </select>
-                            <#else>
-                            <#-- Fallback на старый способ если currencies не загружены -->
-                                <select id="createCurrency" name="currency" class="form-select" required>
-                                    <option value="">-- Выберите валюту --</option>
-                                    <option value="RUB">₽ RUB - Российский рубль</option>
-                                    <option value="USD">$ USD - Доллар США</option>
-                                    <option value="EUR">€ EUR - Евро</option>
-                                </select>
                             </#if>
                         </div>
 
@@ -254,13 +246,6 @@
                                             ${curr.symbol} ${curr.code} - ${curr.name}
                                         </option>
                                     </#list>
-                                </select>
-                            <#else>
-                                <select id="editCurrency" name="currency" class="form-select" required>
-                                    <option value="">-- Выберите валюту --</option>
-                                    <option value="RUB">₽ RUB - Российский рубль</option>
-                                    <option value="USD">$ USD - Доллар США</option>
-                                    <option value="EUR">€ EUR - Евро</option>
                                 </select>
                             </#if>
                         </div>

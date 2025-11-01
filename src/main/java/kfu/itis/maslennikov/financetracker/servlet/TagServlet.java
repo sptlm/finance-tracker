@@ -46,7 +46,7 @@ public class TagServlet extends HttpServlet {
         
         try {
             if ("create".equals(action)) {
-                handleCreate(req, user.getId());
+                handleCreate(req);
                 req.getSession().setAttribute("successMessage", "Тег успешно создан");
             } else if ("update".equals(action)) {
                 handleUpdate(req);
@@ -62,10 +62,12 @@ public class TagServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/tags");
     }
     
-    private void handleCreate(HttpServletRequest req, Long userId) {
+    private void handleCreate(HttpServletRequest req) {
         String name = req.getParameter("name");
         String color = req.getParameter("color");
 
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
         Tag tag = new Tag(null, userId, name, color);
         
         tagService.create(tag);
@@ -82,7 +84,9 @@ public class TagServlet extends HttpServlet {
         }
         tag.get().setName(name);
         tag.get().setColor(color);
-        tagService.update(tag.orElse(null));
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
+        tagService.update(tag.orElse(null),userId);
     }
     
     private void handleDelete(HttpServletRequest req) {

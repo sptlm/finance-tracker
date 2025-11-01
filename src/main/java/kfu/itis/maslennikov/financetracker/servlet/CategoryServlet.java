@@ -47,7 +47,7 @@ public class CategoryServlet extends HttpServlet {
         
         try {
             if ("create".equals(action)) {
-                handleCreate(req, user.getId());
+                handleCreate(req);
                 req.getSession().setAttribute("successMessage", "Категория успешно создана");
             } else if ("update".equals(action)) {
                 handleUpdate(req);
@@ -63,12 +63,13 @@ public class CategoryServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/categories");
     }
 
-    private void handleCreate(HttpServletRequest req, Long userId) {
+    private void handleCreate(HttpServletRequest req) {
         String name = req.getParameter("name");
         String type = req.getParameter("type");
         String color = req.getParameter("color");
         String icon = req.getParameter("icon");
-
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
         Category category = new Category(null, userId, name, type, color, icon);
         categoryService.create(category);
     }
@@ -88,8 +89,9 @@ public class CategoryServlet extends HttpServlet {
         category.get().setType(type);
         category.get().setColor(color);
         category.get().setIcon(icon);
-        
-        categoryService.update(category.orElse(null));
+        UserDto user = (UserDto) req.getSession().getAttribute("user");
+        Long userId = user.getId();
+        categoryService.update(category.orElse(null),userId);
     }
     
     private void handleDelete(HttpServletRequest req) {
