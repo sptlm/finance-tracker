@@ -141,7 +141,7 @@ public class CategoryDaoImpl implements CategoryDao {
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error deleting category", e);
+            throw new RuntimeException("Не получилось удалить категорию, скорее всего она используется в какой-то транзакции", e);
         }
     }
 
