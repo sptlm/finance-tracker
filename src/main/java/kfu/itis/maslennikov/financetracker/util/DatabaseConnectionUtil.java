@@ -20,9 +20,9 @@ static {
 
     // Конфигурация HikariCP
     HikariConfig hikariConfig = new HikariConfig();
-    hikariConfig.setJdbcUrl(appConfig.DBUrl());
-    hikariConfig.setUsername(appConfig.DBUser());
-    hikariConfig.setPassword(appConfig.DBPassword());
+    hikariConfig.setJdbcUrl(System.getenv("FIN_URL"));
+    hikariConfig.setUsername(System.getenv("FIN_USER"));
+    hikariConfig.setPassword(System.getenv("FIN_PASSWORD"));
 
     // Настройки пула соединений для PostgreSQL
     hikariConfig.setMaximumPoolSize(Integer.parseInt("10"));
